@@ -9,6 +9,7 @@ using Azure.Storage.Blobs;
 using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
+using FileUploader.BusinessLogic;
 
 namespace FilesUploader.Controllers
 {
@@ -16,9 +17,11 @@ namespace FilesUploader.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private string containerConnectionString;
-        public HomeController(ILogger<HomeController> logger, IConfiguration config)
+        private readonly IFileUploader fileUploader;
+        public HomeController(ILogger<HomeController> logger, IConfiguration config, IFileUploader fileUploader)
         {
             _logger = logger;
+            this.fileUploader = fileUploader;
             var value = config.GetSection("Configuration");
             this.containerConnectionString = value.GetValue<string>(Constants.ConnectionStrings.ContainerPropertyName);
         }
@@ -43,28 +46,13 @@ namespace FilesUploader.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadFile(List<IFormFile> files)
         {
+            var file = files.First();
+            
             using (MemoryStream ms = new MemoryStream())
             {
-                var file = files.First();
-                var copyTask = file.CopyToAsync(ms);
-                BlobContainerClient blobContainerClient;
+                await file.CopyToAsync(ms);
 
-                BlobServiceClient blobServiceClient = new BlobServiceClient(containerConnectionString);
-                var containers = blobServiceClient.GetBlobContainers();
-
-                var container = containers.FirstOrDefault(o => o.Name.Equals(Constants.ContainerName));
-                if (container == null)
-                {
-                    blobContainerClient = blobServiceClient.CreateBlobContainer(Constants.ContainerName);
-                }
-                else
-                {
-                    blobContainerClient = blobServiceClient.GetBlobContainerClient(Constants.ContainerName);
-                }
-
-                await copyTask;
-                ms.Position = 0;
-                await blobContainerClient.UploadBlobAsync(file.FileName, ms);
+                await this.fileUploader.UploadFile(ms, file.FileName);
             }
 
             return RedirectToAction("Index");

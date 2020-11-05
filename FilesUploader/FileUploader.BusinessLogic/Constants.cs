@@ -1,4 +1,4 @@
-﻿namespace FilesUploader.Models
+﻿namespace FileUploader.BusinessLogic
 {
     public static class Constants
     {
