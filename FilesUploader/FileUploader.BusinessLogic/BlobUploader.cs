@@ -33,20 +33,20 @@ namespace FileUploader.BusinessLogic
                 blobContainerClient = blobServiceClient.GetBlobContainerClient(Constants.ContainerName);
             }
 
-            var taskMetadata = this.AddMetadata(blobContainerClient);
-
             fileStream.Position = 0;
             await blobContainerClient.UploadBlobAsync(fileName, fileStream);
+            await this.AddMetadata(blobContainerClient, fileName);
             fileStream.Dispose();
-            await taskMetadata;
         }
 
-        private async Task<Azure.Response<Azure.Storage.Blobs.Models.BlobContainerInfo>> AddMetadata(BlobContainerClient blobContainerClient)
+        private async Task<Azure.Response<Azure.Storage.Blobs.Models.BlobInfo>> AddMetadata(BlobContainerClient blobContainerClient, string blobName)
         {
             IDictionary<string, string> metadata = new Dictionary<string, string>();
             metadata.Add(Constants.Metadata.DateTimeUtc, DateTime.UtcNow.ToString());
 
-            return await blobContainerClient.SetMetadataAsync(metadata);
+            var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+            return await blobClient.SetMetadataAsync(metadata);
         }
     }
 }

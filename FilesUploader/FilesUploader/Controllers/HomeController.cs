@@ -18,23 +18,33 @@ namespace FilesUploader.Controllers
         private readonly ILogger<HomeController> _logger;
         private string containerConnectionString;
         private readonly IFileUploader fileUploader;
-        public HomeController(ILogger<HomeController> logger, IConfiguration config, IFileUploader fileUploader)
+        private readonly IMetadataReader metadataReader;
+
+        public HomeController(ILogger<HomeController> logger, IConfiguration config, IFileUploader fileUploader,
+            IMetadataReader metadataReader)
         {
             _logger = logger;
             this.fileUploader = fileUploader;
+            this.metadataReader = metadataReader;
             var value = config.GetSection("Configuration");
             this.containerConnectionString = value.GetValue<string>(Constants.ConnectionStrings.ContainerPropertyName);
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             BlobServiceClient blobServiceClient = new BlobServiceClient(containerConnectionString);
-            var blobClient = blobServiceClient.GetBlobContainerClient(Constants.ContainerName);
-            var blobList = blobClient.GetBlobs().ToList();
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(Constants.ContainerName);
+            var blobList = blobContainerClient.GetBlobs().ToList();
 
             var model = new FileUploaderModel();
-            model.Blobs = blobList;
-
+            blobList.ForEach(async blob =>
+            {
+                var blobItem = new Blob();
+                blobItem.BlobItem = blob;
+                blobItem.Metadata = await metadataReader.ReadMetadata(blobContainerClient, blob.Name);
+                model.Blobs.Add(blobItem);
+            });
+            
             return View(model);
         }
 

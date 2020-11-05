@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@model FileUploaderModel
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
@@ -11,14 +12,16 @@
     </form>
 </div>
 <div class="container">
-
     <form method="post" enctype="multipart/form-data">
         @foreach (var blob in Model.Blobs)
         {
             <div class="row">
                 <div class="col-4">
-                    <input type="hidden" name="fileName" value="@blob.Name" />
-                    <span>@blob.Name</span>
+                    <input type="hidden" name="fileName" value="@blob.BlobItem.Name" />
+                    <span>@blob.BlobItem.Name</span>
+                </div>
+                <div class="col-2">
+                    <span>@blob.Metadata[FileUploader.BusinessLogic.Constants.Metadata.DateTimeUtc].ToString()</span>
                 </div>
                 <div class="col-2">
                     <button type="submit" class="btn btn-warning" asp-action="DeleteFile" asp-controller="Home">Delete</button>

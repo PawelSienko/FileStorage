@@ -30,6 +30,7 @@ namespace FilesUploader
             var containerConnectionString = value.GetValue<string>(Constants.ConnectionStrings.ContainerPropertyName);
 
             services.AddScoped<IFileUploader>(o => new BlobUploader(containerConnectionString));
+            services.AddScoped<IMetadataReader, MetadataReader>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
