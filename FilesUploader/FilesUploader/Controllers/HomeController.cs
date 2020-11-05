@@ -30,8 +30,12 @@ namespace FilesUploader.Controllers
         {
             BlobServiceClient blobServiceClient = new BlobServiceClient(containerConnectionString);
             var blobClient = blobServiceClient.GetBlobContainerClient(Constants.ContainerName);
-            var blobList = blobClient.GetBlobs();
-            return View(blobList);
+            var blobList = blobClient.GetBlobs().ToList();
+
+            var model = new FileUploaderModel();
+            model.Blobs = blobList;
+
+            return View(model);
         }
 
         [HttpPost]
