@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.ChangeFeed;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace FileUploader.BusinessLogic
             {
                 blobContainerClient = blobServiceClient.GetBlobContainerClient(Constants.ContainerName);
             }
-
+            //blobServiceClient.GetChangeFeedClient();
             fileStream.Position = 0;
             await blobContainerClient.UploadBlobAsync(fileName, fileStream);
             await this.AddMetadata(blobContainerClient, fileName);
