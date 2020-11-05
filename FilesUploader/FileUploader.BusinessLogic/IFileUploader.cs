@@ -5,6 +5,6 @@ namespace FileUploader.BusinessLogic
 {
     public interface IFileUploader
     {
-        Task UploadFile(MemoryStream fileStream, string fileName)
+        Task UploadFile(MemoryStream fileStream, string fileName);
     }
 }
