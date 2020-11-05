@@ -1,4 +1,7 @@
 ﻿using Azure.Storage.Blobs;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,8 +11,7 @@ namespace FileUploader.BusinessLogic
     public class BlobUploader : IFileUploader
     {
         private string containerConnectionString;
-        private MemoryStream stream;
-
+        
         public BlobUploader(string containerConnectionString)
         {
             this.containerConnectionString = containerConnectionString;
@@ -31,9 +33,20 @@ namespace FileUploader.BusinessLogic
                 blobContainerClient = blobServiceClient.GetBlobContainerClient(Constants.ContainerName);
             }
 
+            var taskMetadata = this.AddMetadata(blobContainerClient);
+
             fileStream.Position = 0;
             await blobContainerClient.UploadBlobAsync(fileName, fileStream);
             fileStream.Dispose();
+            await taskMetadata;
+        }
+
+        private async Task<Azure.Response<Azure.Storage.Blobs.Models.BlobContainerInfo>> AddMetadata(BlobContainerClient blobContainerClient)
+        {
+            IDictionary<string, string> metadata = new Dictionary<string, string>();
+            metadata.Add(Constants.Metadata.DateTimeUtc, DateTime.UtcNow.ToString());
+
+            return await blobContainerClient.SetMetadataAsync(metadata);
         }
     }
 }
