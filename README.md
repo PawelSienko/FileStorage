@@ -1,7 +1,8 @@
 # FileStorage
+Scope: this repository is regarding exam az-205 (Azure Developer)
 
-Simple file uploader to upload files to azure blob storage
+Trivial application to upload and remove files to Azure Blob Storage.
 
-Reading and adding metadata to single blob item
+Reading blob feeds (history of operation on cloud)
 
 az-204
