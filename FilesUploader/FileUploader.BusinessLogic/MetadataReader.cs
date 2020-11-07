@@ -12,7 +12,7 @@ namespace FileUploader.BusinessLogic
             var properties =  blobClient.GetProperties();
             var metadata = properties.Value.Metadata;
 
-            return metadata;
+            return await Task.FromResult(metadata); ;
         }
     }
 }

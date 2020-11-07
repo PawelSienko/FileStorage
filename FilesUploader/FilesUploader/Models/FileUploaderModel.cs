@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs.Models;
+﻿using Azure.Storage.Blobs.ChangeFeed;
+using Azure.Storage.Blobs.Models;
 using System.Collections.Generic;
 
 namespace FilesUploader.Models
@@ -11,6 +12,8 @@ namespace FilesUploader.Models
         }
 
         public List<Blob> Blobs { get; set; }
+
+        public List<BlobChangeFeedEvent> BlobChangeEventFeeds { get; set; }
     }
 
     public class Blob

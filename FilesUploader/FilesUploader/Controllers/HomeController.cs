@@ -19,13 +19,17 @@ namespace FilesUploader.Controllers
         private string containerConnectionString;
         private readonly IFileUploader fileUploader;
         private readonly IMetadataReader metadataReader;
+        private readonly IChangeFeedReader changeFeedReader;
 
         public HomeController(ILogger<HomeController> logger, IConfiguration config, IFileUploader fileUploader,
+            IChangeFeedReader changeFeedReader,
             IMetadataReader metadataReader)
         {
             _logger = logger;
             this.fileUploader = fileUploader;
             this.metadataReader = metadataReader;
+            this.changeFeedReader = changeFeedReader;
+
             var value = config.GetSection("Configuration");
             this.containerConnectionString = value.GetValue<string>(Constants.ConnectionStrings.ContainerPropertyName);
         }
@@ -37,6 +41,7 @@ namespace FilesUploader.Controllers
             var blobList = blobContainerClient.GetBlobs().ToList();
 
             var model = new FileUploaderModel();
+            var changeEventTask = changeFeedReader.ReadChangeFeedAsync();
             blobList.ForEach(async blob =>
             {
                 var blobItem = new Blob();
@@ -44,7 +49,9 @@ namespace FilesUploader.Controllers
                 blobItem.Metadata = await metadataReader.ReadMetadata(blobContainerClient, blob.Name);
                 model.Blobs.Add(blobItem);
             });
-            
+
+            model.BlobChangeEventFeeds = (await changeEventTask).OrderByDescending(o => o.EventTime).ToList();
+
             return View(model);
         }
 

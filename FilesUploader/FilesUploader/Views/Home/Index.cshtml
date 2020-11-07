@@ -29,4 +29,21 @@
             </div>
         }
     </form>
+    <div class="container">
+        <h3>Changes on blobs</h3>
+        @foreach(var changeEventFeed in Model.BlobChangeEventFeeds)
+        {
+        <div class="row">
+            <div class="col-3">
+                @changeEventFeed.EventTime
+            </div>
+            <div class="col-3">
+                @changeEventFeed.EventType
+            </div>
+            <div class="col-6">
+                @changeEventFeed.Subject
+            </div>
+        </div>
+        }
+    </div>
 </div>

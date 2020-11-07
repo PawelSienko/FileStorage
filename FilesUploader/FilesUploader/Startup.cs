@@ -31,6 +31,7 @@ namespace FilesUploader
 
             services.AddScoped<IFileUploader>(o => new BlobUploader(containerConnectionString));
             services.AddScoped<IMetadataReader, MetadataReader>();
+            services.AddScoped<IChangeFeedReader>(o => new ChangeFeedReader(containerConnectionString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
