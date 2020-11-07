@@ -13,5 +13,10 @@
         {
             public const string DateTimeUtc = "DateTimeUtc";
         }
+
+        public static class ViewDataProperties
+        {
+            public static string Cursor { get; set; }
+        }
     }
 }

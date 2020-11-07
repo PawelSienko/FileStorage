@@ -31,19 +31,27 @@
     </form>
     <div class="container">
         <h3>Changes on blobs</h3>
-        @foreach(var changeEventFeed in Model.BlobChangeEventFeeds)
+        @foreach (var changeEventFeed in Model.BlobChangeEventFeeds)
         {
-        <div class="row">
-            <div class="col-3">
-                @changeEventFeed.EventTime
+            <div class="row">
+                <div class="col-3">
+                    @changeEventFeed.EventTime
+                </div>
+                <div class="col-3">
+                    @changeEventFeed.EventType
+                </div>
+                <div class="col-6">
+                    @changeEventFeed.Subject
+                </div>
             </div>
-            <div class="col-3">
-                @changeEventFeed.EventType
-            </div>
-            <div class="col-6">
-                @changeEventFeed.Subject
+        }
+        <div class="container">
+            <div class="row">
+                <form method="get" enctype="multipart/form-data">
+                    <input type="hidden" name="cursor" value="@Model.Cursor" />
+                    <button type="submit" class="btn btn-info" asp-action="Index" asp-controller="Home">Next</button>
+                </form>
             </div>
         </div>
-        }
     </div>
 </div>

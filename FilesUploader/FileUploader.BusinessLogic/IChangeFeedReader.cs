@@ -6,6 +6,6 @@ namespace FileUploader.BusinessLogic
 {
     public interface IChangeFeedReader
     {
-        Task<List<BlobChangeFeedEvent>> ReadChangeFeedAsync();
+        Task<Dictionary<string, List<BlobChangeFeedEvent>>> ReadChangeFeedAsync(string cursor);
     }
 }

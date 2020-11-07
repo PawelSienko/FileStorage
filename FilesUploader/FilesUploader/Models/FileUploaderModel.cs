@@ -11,6 +11,8 @@ namespace FilesUploader.Models
             Blobs = new List<Blob>();
         }
 
+        public string Cursor { get; set; }
+
         public List<Blob> Blobs { get; set; }
 
         public List<BlobChangeFeedEvent> BlobChangeEventFeeds { get; set; }

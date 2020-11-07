@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.ChangeFeed;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace FileUploader.BusinessLogic
             this.connectionString = connectionString;
         }
 
-        public async Task<List<BlobChangeFeedEvent>> ReadChangeFeedAsync()
+        public async Task<Dictionary<string,List<BlobChangeFeedEvent>>> ReadChangeFeedAsync(string cursor)
         {
             // create blob service client
             BlobServiceClient blobServiceClient = new BlobServiceClient(this.connectionString);
@@ -24,13 +25,23 @@ namespace FileUploader.BusinessLogic
 
             List<BlobChangeFeedEvent> blobChangeFeedEvents = new List<BlobChangeFeedEvent>();
 
-            // read change feed
-            await foreach (BlobChangeFeedEvent changeFeedEvent in blobChangeFeedClient.GetChangesAsync())
+            IAsyncEnumerator<Page<BlobChangeFeedEvent>> enumerator = blobChangeFeedClient.GetChangesAsync(continuationToken: cursor)
+                .AsPages(pageSizeHint: 5)
+                .GetAsyncEnumerator();
+
+            await enumerator.MoveNextAsync();
+            Dictionary<string, List<BlobChangeFeedEvent>> keyValuePairs = new Dictionary<string, List<BlobChangeFeedEvent>>();
+
+            if (enumerator.Current != null && enumerator.Current.Values != null)
             {
-                blobChangeFeedEvents.Add(changeFeedEvent);
+                foreach (BlobChangeFeedEvent changeFeedEvent in enumerator.Current.Values)
+                {
+                    blobChangeFeedEvents.Add(changeFeedEvent);
+                }
+                keyValuePairs.Add(enumerator.Current.ContinuationToken, blobChangeFeedEvents);
             }
 
-            return blobChangeFeedEvents;
+            return keyValuePairs;
         }
     }
 }
